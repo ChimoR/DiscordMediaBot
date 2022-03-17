@@ -49,7 +49,8 @@ public class MPEventProcessor
         String message = event.getMessage().getContentRaw();
         String url = message.substring(message.indexOf(" ") + 1);
 
-        setAndConnectToChannel(event, url);
+        connectToChannel(setChannelSettings(event));
+        loadTrack(url);
     }
 
     public void processPauseEvent(MessageReceivedEvent event)
@@ -107,15 +108,21 @@ public class MPEventProcessor
         }
     }
 
-    public void setAndConnectToChannel(MessageReceivedEvent event, String url)
+    public void processPlayGachi(MessageReceivedEvent event)
     {
+        //TODO
+    }
+
+    public VoiceChannel setChannelSettings(MessageReceivedEvent event)
+    {
+        VoiceChannel voiceChannel = null;
         if (event.getMember() != null)
         {
             if (event.getMember().getVoiceState() != null)
             {
                 if (event.getMember().getVoiceState().getChannel() != null)
                 {
-                    VoiceChannel voiceChannel = event.getMember().getVoiceState().getChannel();
+                    voiceChannel = event.getMember().getVoiceState().getChannel();
                     if ((guild == null && audioManager == null) || (guild != voiceChannel.getGuild()  && audioManager != guild.getAudioManager()))
                     {
                         textChannel = event.getChannel();
@@ -124,13 +131,16 @@ public class MPEventProcessor
 
                         AudioPlayerSendHandler handler = new AudioPlayerSendHandler(audioPlayer);
                         audioManager.setSendingHandler(handler); // установить отправляющий хэндлер
-                        //connectToChannel(voiceChannel); // открыть коннекшен к голосовому каналу
                     }
-                    AudioQueue.loadTrack(playerManager, audioQueue, audioPlayer, textChannel, url);
-                    connectToChannel(voiceChannel);
                 }
             }
         }
+        return voiceChannel;
+    }
+
+    public static void loadTrack(String url)
+    {
+        AudioQueue.loadTrack(playerManager, audioQueue, audioPlayer, textChannel, url);
     }
 
     public static void connectToChannel(VoiceChannel voiceChannel)
@@ -168,6 +178,3 @@ public class MPEventProcessor
         return audioQueue;
     }
 }
-
-//TODO Random Gachi
-//TODO Поддержка нескольких каналов
